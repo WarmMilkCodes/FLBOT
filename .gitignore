@@ -1,2 +1,4 @@
 config.py
 captains.txt
+__pycache__
+.pyc
