@@ -1,0 +1,1 @@
+teams = ['ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CLE', 'DAL', 'DEN', 'HOU', 'JER', 'KCC', 'LAG', 'MAU', 'MIA', 'MTL', 'NEV', 'NOC', 'NSH', 'NYI', 'PHI', 'PHX', 'PIT', 'POR', 'SAR', 'SDA', 'SEA', 'SFC', 'SFK', 'UTA', 'VAN', 'WAR']

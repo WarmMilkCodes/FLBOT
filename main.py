@@ -2,7 +2,9 @@ import discord
 from discord.ext import commands
 from discord.commands import Option
 import config
+from config import milk
 import database as db
+from teams import teams
 
 
 
@@ -15,52 +17,25 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 async def on_ready():
     print(f'{bot} is online!')
 
-@bot.slash_command(description="Assigns FL captain roles")
-@commands.has_role('FL League Director')
-async def assign_captains(ctx):
-    guild = ctx.guild
-    members = await guild.fetch_members().flatten()
-
-    with open('captains.txt', 'r') as f:
-        for line in f:
-            print(f"Processing line: {line}")
-            team_name, captain_name = line.strip().split(': ', 1)
-            for member in members:
-                print(f"Member: {member.display_name}")
-                if member.display_name.lower() == captain_name.lower():
-                    print(f"Found matching member: {member.display_name}")
-                    for role in guild.roles:
-                        print(f"Role: {role.name}")
-                        if role.name == 'FL Captain':
-                            await member.add_roles(role)
-                            print(f"Assigned FL Captain role to {captain_name} for team {team_name}")
+@bot.slash_command(description="Report winner")
+async def report_match(ctx, round:int, winner: str, loser: str):
+    winner = winner.upper()
+    loser = loser.upper()
+    
+    await ctx.respond("Reporting match...", ephemeral=True)
+    if winner in teams and loser in teams:
+        print("Teams found")
+    else:
+        await ctx.respond("Could not find one of those teams. Check again.")
 
 
-from config import matches
+    # Save the result to a file
+    with open("match_results.txt", "a") as f:
+        f.write(f"Round {round}: {winner} defeated {loser}\n")
 
+    # Send a confirmation message to the Discord channel
+    await ctx.send(f"<@{milk}> \n Match result recorded: {winner} defeated {loser} in round {round}")
 
-@bot.slash_command(description="Report a match result")
-async def report_match(ctx, team1: str, team2: str, winner: str):
-    # Check if the command was called by a captain
-    if "FL Captain" not in [role.name for role in ctx.author.roles]:
-        await ctx.send("You do not have permission to report a match result.")
-        return
-
-    # Check if the teams are valid
-    if team1 not in [match["team1"] for match in matches] or team2 not in [match["team2"] for match in matches]:
-        await ctx.send("Invalid teams.")
-        return
-
-    # Find the match
-    for match in matches:
-        if match["team1"] == team1 and match["team2"] == team2:
-            # Update the winner
-            match["winner"] = winner
-            await ctx.send(f"Match result reported. {winner} has won the match.")
-            return
-
-    # If the match wasn't found, send an error message
-    await ctx.send("Match not found.")
 
 
 
